@@ -94,7 +94,7 @@ const Login = () => {
         })
         .catch((err) => {
           console.log(err);
-          alert("Some error occured!");
+          alert(JSON.stringify(err.response.data.detail));
         });
     },
   });

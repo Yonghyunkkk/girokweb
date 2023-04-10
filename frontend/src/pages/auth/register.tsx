@@ -1,15 +1,21 @@
 import Textfield from "../../components/Form/Textfield";
 import axios from "axios";
 import { Formik, Form, useFormik, Field, FormikProvider } from "formik";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 type initialValues = {
   email?: string | undefined;
   password?: string | undefined;
+  verificationCode?: string | undefined;
 };
 const baseURL = import.meta.env.VITE_BASE_URL;
 
-const submit_register_form = async ({ email, password }: initialValues) => {
+const send_code_form = async ({
+  email,
+  password,
+  verificationCode,
+}: initialValues) => {
   const config = {
     headers: {
       "Content-Type": "application/json",
@@ -28,12 +34,35 @@ const submit_register_form = async ({ email, password }: initialValues) => {
   return response;
 };
 
+const submit_register_form = async ({
+  email,
+  password,
+  verificationCode,
+}: initialValues) => {
+  const config = {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  };
+
+  const response = await axios.post(
+    `${baseURL}/register/verification_code`,
+    {
+      email: email,
+      verification_code: verificationCode,
+    },
+    config
+  );
+};
+
 const Register = () => {
   const navigate = useNavigate();
+  const [btnClicked, setBtnClicked] = useState("");
 
   const initialValues: initialValues = {
     email: "",
     password: "",
+    verificationCode: "",
   };
 
   const formik = useFormik({
@@ -52,20 +81,36 @@ const Register = () => {
       if (!values.password) {
         errors.password = "Required";
       }
+
       return errors;
     },
     onSubmit: async (values) => {
-      submit_register_form({
-        ...values,
-      })
-        .then((res) => {
-          formik.resetForm();
-          console.log(res);
+      console.log(btnClicked);
+      if (btnClicked === "register") {
+        submit_register_form({
+          ...values,
         })
-        .catch((err) => {
-          console.log(err);
-          alert("Some error occured!");
-        });
+          .then((res) => {
+            console.log(res);
+            navigate("/login");
+          })
+          .catch((err) => {
+            console.log(err);
+            alert(JSON.stringify(err.response.data.detail));
+          });
+      } else {
+        console.log("hello");
+        send_code_form({
+          ...values,
+        })
+          .then((res) => {
+            console.log(res);
+          })
+          .catch((err) => {
+            console.log(err);
+            alert(JSON.stringify(err.response.data.detail));
+          });
+      }
     },
   });
   return (
@@ -90,7 +135,31 @@ const Register = () => {
             errors={formik.errors.password}
             placeholder={"Password*"}
           />
-          <button>Register</button>
+          <Textfield
+            name="verificationCode"
+            onChange={formik.handleChange}
+            value={formik.values.verificationCode}
+            touched={formik.touched.verificationCode}
+            handleBlur={formik.handleBlur}
+            errors={formik.errors.verificationCode}
+            placeholder={"Verification Code*"}
+          />
+          <button
+            type="submit"
+            onClick={(event) => {
+              setBtnClicked("register");
+            }}
+          >
+            Register
+          </button>
+          <button
+            type="submit"
+            onClick={(event) => {
+              setBtnClicked("sendCode");
+            }}
+          >
+            Send Code
+          </button>
         </form>
       </FormikProvider>
     </>
