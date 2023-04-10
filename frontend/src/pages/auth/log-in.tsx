@@ -28,6 +28,19 @@ const submit_login_form = async ({ username, password }: initialValues) => {
   return response;
 };
 
+const validate_access_token = async (token: string) => {
+  const config = {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + token,
+    },
+  };
+
+  const response = await axios.get(`${baseURL}/validate-access-token`, config);
+
+  return response;
+};
+
 const Login = () => {
   const navigate = useNavigate();
 
@@ -69,23 +82,14 @@ const Login = () => {
             return;
           }
 
-          const options = {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: "Bearer " + token,
-            },
-          };
-
           if (res.status === 200) {
-            axios
-              .get(`${baseURL}/validate-access-token`, options)
-              .then((response) => {
-                localStorage.clear();
-                localStorage.setItem("user-token", token);
-                setTimeout(() => {
-                  navigate("/");
-                }, 500);
-              });
+            validate_access_token(token).then((response) => {
+              localStorage.clear();
+              localStorage.setItem("user-token", token);
+              setTimeout(() => {
+                navigate("/");
+              }, 500);
+            });
           }
         })
         .catch((err) => {
