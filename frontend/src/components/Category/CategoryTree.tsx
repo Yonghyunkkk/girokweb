@@ -11,6 +11,7 @@ interface Category {
 
 interface CategoryTreeProps {
     data: Record<string, Category>;
+    onUpdate: () => void;
 }
 
 interface CategoryNodeProps {
@@ -18,9 +19,10 @@ interface CategoryNodeProps {
     category: Category;
     level: number;
     fullPath: string;
+    onDataChange: () => void;
 }
 
-const CategoryNode: FC<CategoryNodeProps> = ({ label, category, level, fullPath }) => {
+const CategoryNode: FC<CategoryNodeProps> = ({ label, category, level, fullPath, onDataChange }) => {
 
     const [contextMenu, setContextMenu] = useState<{
         x: number;
@@ -64,6 +66,7 @@ const CategoryNode: FC<CategoryNodeProps> = ({ label, category, level, fullPath 
         })
             .then((response) => {
                 console.log(response)
+                onDataChange();
             })
             .catch((error) => {
                 console.log(error)
@@ -101,6 +104,7 @@ const CategoryNode: FC<CategoryNodeProps> = ({ label, category, level, fullPath 
                         category={subcategory}
                         level={level + 1}
                         fullPath={`${fullPath}/${key}`}
+                        onDataChange={onDataChange}
                     />
                 ))}
             {contextMenu && <div onClick={handleCloseContextMenu} />}
@@ -108,11 +112,11 @@ const CategoryNode: FC<CategoryNodeProps> = ({ label, category, level, fullPath 
     );
 };
 
-export const CategoryTree: FC<CategoryTreeProps> = ({ data }) => {
+export const CategoryTree: FC<CategoryTreeProps> = ({ data, onUpdate }) => {
     return (
         <>
             {Object.entries(data).map(([key, category]) => (
-                <CategoryNode key={key} label={key} category={category} level={0} fullPath={key} />
+                <CategoryNode key={key} label={key} category={category} level={0} fullPath={key} onDataChange={onUpdate} />
             ))}
         </>
     );
