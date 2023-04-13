@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { FC, useState, useEffect } from 'react';
 import { ContextMenu } from "./ContextMenu";
+import CategoryDragItem from "./CategoryDragItem";
+import CategoryDropTarget from "./CategoryDropTarget";
 
 const baseURL = import.meta.env.VITE_BASE_URL;
 
@@ -12,6 +14,7 @@ interface Category {
 interface CategoryTreeProps {
     data: Record<string, Category>;
     onUpdate: () => void;
+    onMoveCategory: (srcPath: string[], destPath: string[]) => void;
 }
 
 interface CategoryNodeProps {
@@ -20,9 +23,10 @@ interface CategoryNodeProps {
     level: number;
     fullPath: string;
     onDataChange: () => void;
+    onMoveCategory: (srcPath: string[], destPath: string[]) => void;
 }
 
-const CategoryNode: FC<CategoryNodeProps> = ({ label, category, level, fullPath, onDataChange }) => {
+const CategoryNode: FC<CategoryNodeProps> = ({ label, category, level, fullPath, onDataChange, onMoveCategory }) => {
 
     const [contextMenu, setContextMenu] = useState<{
         x: number;
@@ -77,18 +81,30 @@ const CategoryNode: FC<CategoryNodeProps> = ({ label, category, level, fullPath,
         setContextMenu(null);
     };
 
+    const handleDrop = (item: any) => {
+        const srcPath = item.id.split("/");
+        const destPath = fullPath.split("/");
+
+        onMoveCategory(srcPath, destPath);
+    };
+
+
     return (
         <>
-            <div
-                onContextMenu={handleContextMenu}
-                style={{
-                    marginLeft: level * 20,
-                    color: category.color,
-                    fontWeight: hasSubcategories ? 'bold' : 'normal',
-                }}
-            >
-                {label}
-            </div>
+            <CategoryDropTarget type="category" onDrop={handleDrop}>
+                <CategoryDragItem type="category" id={fullPath}>
+                    <div
+                        onContextMenu={handleContextMenu}
+                        style={{
+                            marginLeft: level * 20,
+                            color: category.color,
+                            fontWeight: hasSubcategories ? 'bold' : 'normal',
+                        }}
+                    >
+                        {label}
+                    </div>
+                </CategoryDragItem>
+            </CategoryDropTarget>
             {contextMenu && (
                 <ContextMenu
                     x={contextMenu.x}
@@ -105,6 +121,7 @@ const CategoryNode: FC<CategoryNodeProps> = ({ label, category, level, fullPath,
                         level={level + 1}
                         fullPath={`${fullPath}/${key}`}
                         onDataChange={onDataChange}
+                        onMoveCategory={onMoveCategory}
                     />
                 ))}
             {contextMenu && <div onClick={handleCloseContextMenu} />}
@@ -112,11 +129,11 @@ const CategoryNode: FC<CategoryNodeProps> = ({ label, category, level, fullPath,
     );
 };
 
-export const CategoryTree: FC<CategoryTreeProps> = ({ data, onUpdate }) => {
+export const CategoryTree: FC<CategoryTreeProps> = ({ data, onUpdate, onMoveCategory }) => {
     return (
         <>
             {Object.entries(data).map(([key, category]) => (
-                <CategoryNode key={key} label={key} category={category} level={0} fullPath={key} onDataChange={onUpdate} />
+                <CategoryNode key={key} label={key} category={category} level={0} fullPath={key} onDataChange={onUpdate} onMoveCategory={onMoveCategory} />
             ))}
         </>
     );
