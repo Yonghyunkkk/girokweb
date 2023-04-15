@@ -22,7 +22,11 @@ const AddCategoryForm: React.FC<AddCategoryFormProps> = ({ onAddCategory }) => {
                 type="text"
                 value={inputValue}
                 onChange={(event) => setInputValue(event.target.value)}
+<<<<<<< HEAD
                 placeholder="Enter new category (e.g. HKU/COMP3354)"
+=======
+                placeholder="Enter new category"
+>>>>>>> cd479a708c80070b8c14c515622278563f89fd1e
             />
             <button type="submit">Add Category</button>
         </form>
