@@ -8,7 +8,6 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 <<<<<<< HEAD
 =======
 import Tag from "../Tag/Tag";
->>>>>>> cd479a708c80070b8c14c515622278563f89fd1e
 
 const baseURL = import.meta.env.VITE_BASE_URL;
 
@@ -16,10 +15,7 @@ const Category = () => {
     const navigate = useNavigate();
 
     const [categories, setCategories] = useState({});
-<<<<<<< HEAD
-=======
     const [tags, setTags] = useState<string[]>([]);
->>>>>>> cd479a708c80070b8c14c515622278563f89fd1e
 
     const fetchCategoryData = async () => {
         const response = await axios.request({
@@ -39,8 +35,6 @@ const Category = () => {
         });
     }, []);
 
-<<<<<<< HEAD
-=======
     const fetchTags = async () => {
         const response = await axios.request({
             method: 'get',
@@ -53,7 +47,6 @@ const Category = () => {
         setTags(response.data.tags);
     };
 
->>>>>>> cd479a708c80070b8c14c515622278563f89fd1e
     const handleAddCategory = async (categoryPath: string[]) => {
         console.log("Category Path: ", categoryPath);
         const requestBody = {
@@ -105,12 +98,9 @@ const Category = () => {
         fetchCategoryData().catch((error) => {
             navigate("/");
         });
-<<<<<<< HEAD
-=======
         fetchTags().catch((error) => {
             console.log(error);
         });
->>>>>>> cd479a708c80070b8c14c515622278563f89fd1e
     }, []);
 
     return (
@@ -119,10 +109,7 @@ const Category = () => {
                 <CategoryTree data={categories} onUpdate={fetchCategoryData} onMoveCategory={handleMoveCategory} />
             </DndProvider>
             <AddCategoryForm onAddCategory={handleAddCategory} />
-<<<<<<< HEAD
-=======
             <Tag tags={tags} />
->>>>>>> cd479a708c80070b8c14c515622278563f89fd1e
         </div>
     )
 }
