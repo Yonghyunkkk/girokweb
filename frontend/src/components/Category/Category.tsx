@@ -5,6 +5,7 @@ import { CategoryTree } from './CategoryTree'
 import AddCategoryForm from './AddCategoryForm';
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
+import Tag from "../Tag/Tag";
 
 const baseURL = import.meta.env.VITE_BASE_URL;
 
@@ -12,6 +13,7 @@ const Category = () => {
     const navigate = useNavigate();
 
     const [categories, setCategories] = useState({});
+    const [tags, setTags] = useState<string[]>([]);
 
     const fetchCategoryData = async () => {
         const response = await axios.request({
@@ -30,6 +32,18 @@ const Category = () => {
             navigate("/");
         });
     }, []);
+
+    const fetchTags = async () => {
+        const response = await axios.request({
+            method: 'get',
+            url: `${baseURL}/tasks/tags`,
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: 'Bearer ' + localStorage.getItem('user-token'),
+            },
+        })
+        setTags(response.data.tags);
+    };
 
     const handleAddCategory = async (categoryPath: string[]) => {
         console.log("Category Path: ", categoryPath);
@@ -82,6 +96,9 @@ const Category = () => {
         fetchCategoryData().catch((error) => {
             navigate("/");
         });
+        fetchTags().catch((error) => {
+            console.log(error);
+        });
     }, []);
 
     return (
@@ -90,6 +107,7 @@ const Category = () => {
                 <CategoryTree data={categories} onUpdate={fetchCategoryData} onMoveCategory={handleMoveCategory} />
             </DndProvider>
             <AddCategoryForm onAddCategory={handleAddCategory} />
+            <Tag tags={tags} />
         </div>
     )
 }
